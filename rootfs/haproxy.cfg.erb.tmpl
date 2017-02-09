@@ -45,7 +45,7 @@ backend {{ $backend.Name }}
 ###### HTTP frontend
 ######
 frontend httpfront
-    bind *:80
+    bind <%= bind_tcp('0.0.0.0', 80) %>
     mode http
 {{ if ne $cfg.Syslog "" }}
     option httplog
@@ -75,7 +75,7 @@ frontend httpfront
 ###### HTTPS frontend (tcp mode)
 ######
 frontend httpsfront
-    bind :443
+    bind <%= bind_tcp('0.0.0.0', 443) %>
     mode tcp
     tcp-request inspect-delay 5s
     tcp-request content accept if { req.ssl_hello_type 1 }
@@ -114,7 +114,7 @@ frontend httpsfront-{{ $host }}
 ###### Status page
 ######
 listen stats
-    bind *:1936
+    bind <%= bind_tcp('0.0.0.0', 1936) %>
     mode http
     stats enable
     stats realm Haproxy\ Statistics

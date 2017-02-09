@@ -33,16 +33,14 @@ import (
 type haproxyController struct {
 	controller *controller.GenericController
 	configMap  *api.ConfigMap
-	command    string
 	configFile string
 	template   *template
 }
 
 func newHAProxyController() *haproxyController {
 	return &haproxyController{
-		command:    "/haproxy-wrapper",
-		configFile: "/usr/local/etc/haproxy/haproxy.cfg",
-		template:   newTemplate("haproxy.tmpl", "/usr/local/etc/haproxy/haproxy.tmpl"),
+		configFile: "/usr/local/etc/haproxy/haproxy.cfg.erb",
+		template:   newTemplate("haproxy.cfg.erb.tmpl", "/usr/local/etc/haproxy/haproxy.cfg.erb.tmpl"),
 	}
 }
 
@@ -124,6 +122,5 @@ func (haproxy *haproxyController) configChanged(data []byte) bool {
 }
 
 func (haproxy *haproxyController) reloadHaproxy() ([]byte, error) {
-	out, err := exec.Command(haproxy.command, haproxy.configFile).CombinedOutput()
-	return out, err
+	return exec.Command("/haproxy-reload.sh").CombinedOutput()
 }

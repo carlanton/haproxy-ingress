@@ -21,8 +21,15 @@ RUN wget -O/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.0
  && echo "$DUMB_INIT_SHA256  /dumb-init" | sha256sum -c -\
  && chmod +x /dumb-init
 
-COPY haproxy-ingress-controller /
-COPY haproxy-wrapper /
-COPY haproxy.tmpl /usr/local/etc/haproxy/
+# Install multibinder for zero-downtime reloads
+RUN apk add --no-cache ruby ruby-json && \
+    gem install --no-ri --no-rdoc multibinder:0.0.4
 
-ENTRYPOINT ["/dumb-init", "--", "/haproxy-ingress-controller"]
+COPY haproxy-run.sh /
+COPY haproxy-reload.sh /
+COPY haproxy-ingress-controller /
+COPY haproxy.cfg.erb /usr/local/etc/haproxy/
+COPY haproxy.cfg.erb.tmpl /usr/local/etc/haproxy/
+
+ENTRYPOINT ["/dumb-init", "--"]
+CMD ["/haproxy-run.sh"]
